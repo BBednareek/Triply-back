@@ -1,7 +1,7 @@
 from fastapi.exceptions import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from users.models.user_model import UserModel
+from users.register.models.user_model import UserModel
 from typing import Optional
 from core.security import verify_password, create_access_token, create_refresh_token, get_token_payload
 from core.config import Settings, get_settings

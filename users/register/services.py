@@ -1,10 +1,10 @@
-from users.models.user_model import UserModel
+from users.register.models.user_model import UserModel
 from fastapi.exceptions import HTTPException, ValidationException
 from core.security import get_password_hash
 from sqlalchemy.orm import Session
 from typing import Optional
 from datetime import datetime
-from users.schemas import CreateUserRequest
+from users.register.schemas import CreateUserRequest
 from fastapi import status
 
 

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, status, Depends
 from sqlalchemy.orm import Session
 from core.database import get_db
-from users.schemas import CreateUserRequest
-from users.services import create_user_account
+from users.register.schemas import CreateUserRequest
+from users.register.services import create_user_account
 from fastapi.responses import JSONResponse
 
 router: APIRouter = APIRouter(
