@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse
 router: APIRouter = APIRouter(
     prefix='/register',
     tags=['Register'],
-    responses={404: {'description': 'Not found'}}
+    responses={404: {'description': 'Nie znaleziono'}}
 )
 
 
