@@ -24,6 +24,12 @@ class Settings(BaseSettings):
                 % quote_plus(self.DB_PASSWORD)
                 )
 
+#TODO jwt_secret
+
+    JWT_SECRET: str = os.getenv("JWT_SECRET", "")
+    JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = os.getenv("JWT_TOKEN_EXPIRE_MINUTES", 60)
+
 
 def get_settings() -> Settings:
     return Settings()
