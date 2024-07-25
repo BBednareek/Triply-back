@@ -24,9 +24,7 @@ class Settings(BaseSettings):
                 % quote_plus(self.DB_PASSWORD)
                 )
 
-#TODO jwt_secret
-
-    JWT_SECRET: str = os.getenv("JWT_SECRET", "")
+    JWT_SECRET: str = os.getenv("JWT_SECRET", "55223670B98CF242877FA2A9EE7CD53AF7CEDDB12D76E4B012D59CC1F8FE2F02")
     JWT_ALGORITHM: str = os.getenv("JWT_ALGORITHM", "HS256")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = os.getenv("JWT_TOKEN_EXPIRE_MINUTES", 60)
 
