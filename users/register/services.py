@@ -1,17 +1,17 @@
 from users.register.models.user_model import UserModel
-from fastapi.exceptions import HTTPException, ValidationException
+from fastapi.exceptions import HTTPException
 from core.security import get_password_hash
 from sqlalchemy.orm import Session
 from typing import Optional
 from datetime import datetime
 from users.register.schemas import CreateUserRequest
 from fastapi import status
+from pydantic import ValidationError
+from logging import exception as logging_exception
 
 
 async def create_user_account(data: CreateUserRequest, db: Session) -> UserModel:
     try:
-        data = CreateUserRequest(**data.model_dump())
-
         user: Optional[UserModel] = db.query(UserModel).filter(data.email == UserModel.email).first()
 
         if user:
@@ -29,17 +29,26 @@ async def create_user_account(data: CreateUserRequest, db: Session) -> UserModel
             phoneNumber=data.phoneNumber,
             created_at=datetime.now(),
         )
-        try:
-            db.add(new_user)
-            db.commit()
-            db.refresh(new_user)
 
-            return new_user
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)
 
-        except Exception:
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=str("Serwer nie odpowiada"))
+        return new_user
 
-    except ValidationException as e:
-        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=e.errors())
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=e.errors())
+
+    except HTTPException as e:
+        raise e
+
+    except Exception as e:
+        logging_exception("Nieznany błąd: " + e)
+        db.rollback()
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Serwer nie odpowiada",
+        )

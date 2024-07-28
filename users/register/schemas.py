@@ -26,7 +26,7 @@ class CreateUserRequest(BaseModel):
 
     @classmethod
     @field_validator('gender')
-    def validate_gender(cls, value: str) -> str:
+    def validate_gender(cls, value: str) -> int:
         if value not in (1, 2):
             raise ValueError("Wybierz płeć!")
         return value
@@ -46,4 +46,3 @@ class CreateUserRequest(BaseModel):
             )
 
         return value
-

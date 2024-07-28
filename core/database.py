@@ -2,9 +2,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.engine import Engine
 from typing import Generator
-from core.config import get_settings
+from core.config import get_settings, Settings
 
-settings = get_settings()
+settings: Settings = get_settings()
 
 engine: Engine = create_engine(
     settings.database_url,

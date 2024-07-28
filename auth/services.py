@@ -21,12 +21,16 @@ async def get_token(data: OAuth2PasswordRequestForm, db: Session) -> TokenRespon
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    if not verify_password(data.password, user.password):
+    if not verify_password(
+            plain_password=data.password,
+            hashed_password=user.password):
         raise HTTPException(
             status_code=400,
-            detail="Podano błędne hasło",
+            detail="Błędne dane logowania",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+    _verify_user_access(user=user)
 
     return await _get_user_token(user=user)
 
@@ -54,14 +58,25 @@ async def get_refresh_token(token: str, db: Session) -> TokenResponse:
     return await _get_user_token(user=user, refresh_token=token)
 
 
+def _verify_user_access(user: UserModel) -> None:
+    if not user.verified:
+        raise HTTPException(
+            status_code=400,
+            detail="Twoje konto nie jest zweryfikowane."
+                   " Na podany adres mailowy wysłaliśmy link"
+                   " do potwierdzenia konta.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
 async def _get_user_token(user: UserModel, refresh_token=None) -> TokenResponse:
     payload: dict[str, int] = {"id": user.id}
 
     access_token_expiry: timedelta = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
 
-    access_token: str = await create_access_token(payload, access_token_expiry)
+    access_token: str = await create_access_token(data=payload, expiry=access_token_expiry)
     if not refresh_token:
-        refresh_token: str = await create_refresh_token(payload)
+        refresh_token: str = await create_refresh_token(data=payload)
 
     return TokenResponse(
         access_token=access_token,

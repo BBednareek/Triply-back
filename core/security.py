@@ -4,7 +4,6 @@ from datetime import timedelta, datetime
 from jose import jwt, JWTError
 from starlette.authentication import AuthCredentials, UnauthenticatedUser
 from fastapi.param_functions import Header, Depends
-from sqlalchemy.orm import Session
 from core.config import get_settings, Settings
 from core.database import get_db
 from typing import Optional
@@ -23,8 +22,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-async def create_access_token(data: dict[any, any], expiry: timedelta) -> str:
-    payload: dict[any, any] = data.copy()
+async def create_access_token(data: dict[str, any], expiry: timedelta) -> str:
+    payload: dict[str, any] = data.copy()
 
     expire_in: datetime = datetime.now() + expiry
 
@@ -37,15 +36,16 @@ async def create_access_token(data: dict[any, any], expiry: timedelta) -> str:
     )
 
 
-async def create_refresh_token(data: dict[any, any]) -> str:
+async def create_refresh_token(data: dict[str, any]) -> str:
     return jwt.encode(data, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
 
 
-def get_token_payload(token: str) -> dict[any, any]:
+def get_token_payload(token: str) -> dict[str, any]:
     try:
-        payload: dict[any, any] = jwt.decode(token, settings.JWT_SECRET, algorithms=settings.JWT_ALGORITHM)
-    except JWTError as e:
-        raise JWTError(str(e))
+        payload: dict[str, any] = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
+
+    except JWTError:
+        return None
 
     return payload
 
@@ -81,12 +81,12 @@ class JWTAuth:
         if 'authorization' not in conn.headers:
             return guest
 
-        token: str = conn.headers['authorization'].split(' ')[1]
+        token: str = conn.headers.get('authorization').split(' ')[1]
 
         if not token:
             return guest
 
-        user: UserModel = get_current_user(token)
+        user: UserModel = get_current_user(token=token)
 
         if not user:
             return guest

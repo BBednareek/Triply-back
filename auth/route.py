@@ -6,7 +6,7 @@ from auth.services import get_token, get_refresh_token
 from auth.response import TokenResponse
 
 router: APIRouter = APIRouter(
-    prefix="/register",
+    prefix="/auth",
     tags=["Auth"],
     responses={404: {"description": "Not found"}}
 )
